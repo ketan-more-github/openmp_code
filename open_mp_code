@@ -1,0 +1,600 @@
+#include<omp.h>
+#include<stdio.h>
+int main(int argc, char const *argv[])
+{
+
+    // #pragma omp  parallel
+    // {
+    //  if (omp_in_parallel())
+
+
+    // {
+    // printf("in parelle\n");
+    // }else{
+    //     printf("Not in parallel\n");
+    // }
+    // }
+
+    omp_set_num_threads(4);
+    int v = 1234;
+    printf("Value of VAl before paraller regin = %d \n" , v);
+
+    #pragma omp parallel private(v)
+    
+    {
+        
+        printf("Thread %d  Sees Value =  %d and Update it to be : %d\n" , omp_get_thread_num() , v , omp_get_thread_num() );
+        v = omp_get_thread_num();
+        printf("Thread %d  Sees Value =  %d and Update it to be : %d\n" , omp_get_thread_num() , v , omp_get_thread_num() );
+        
+
+    }
+    printf("\n");
+
+
+    #pragma omp parallel firstprivate(v)
+    
+    {
+
+        printf("Thread %d  Sees Value =  %d and Update it to be : %d\n" , omp_get_thread_num() , v , omp_get_thread_num() );
+        v = v+6;
+        printf("Thread %d  Sees Value =  %d and Update it to be : %d\n" , omp_get_thread_num() , v , omp_get_thread_num() );
+    }
+
+         printf("Value of VAl After paraller regin = %d\n" , v);
+       
+    return 0;
+
+ 
+}
+
+
+
+
+
+
+2 - >
+
+
+
+#include <stdio.h>
+#include <omp.h>
+
+void main()
+{
+
+  
+  int sum2 = 0;
+  int sum = 0;
+
+  omp_set_num_threads(4);
+
+  int arr[200];
+  for (int i = 0; i < 200; ++i)
+  {
+
+    arr[i] = 25;
+  }
+
+  #pragma omp parallel for lastprivate (sum) //firstprivate(arr)
+    for (int i = 0; i < 200; ++i)
+    {
+      printf("hello\n");
+     sum = sum + arr[i];
+    }
+
+
+printf("%d 1st\n", sum);
+printf("%d 2nd\n", sum2);
+
+  
+}
+
+
+
+
+
+
+
+
+
+
+3->
+
+#include <stdio.h>
+#include <time.h>
+
+#define ITERATIONS 1000000000
+
+int main() {
+    clock_t start_time = clock(); // Record the start time
+    long long result = 0;
+
+    for (int i = 0; i < ITERATIONS; i++) {
+        for (int j = 0; j < 10; j++)
+        {
+            result += i * i;
+        }
+        
+        
+    }
+
+    clock_t end_time = clock(); // Record the end time
+
+    double elapsed_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("Result: %lld\n", result);
+    printf("Elapsed time: %.2f seconds\n", elapsed_time);
+
+    return 0;
+}
+
+
+
+
+
+4->
+#include<stdio.h>
+#include<omp.h>
+
+int main()
+{
+    omp_set_num_threads(2);
+
+
+        #pragma omp orderd parallel for 
+          for(int t  = 0; t<10; t++){
+                printf("%d\n",t);
+                printf("**%d**\n" , omp_get_thread_num());         
+             }
+    return 0;
+}
+
+
+
+5->
+
+
+
+#include<stdio.h>
+#include<omp.h>
+
+int main()
+{
+    int a = 10;
+    int b = 20;
+    int c = 20;
+    omp_set_num_threads(5);
+
+        #pragma omp parallel for lastprivate(c)
+          for(int t  = 0; t<5; t++){
+                
+                printf("**%d** and c = %d\n" , omp_get_thread_num() ,c);
+                c = a+b;
+                printf("**%d** and c = %d\n" , omp_get_thread_num() , c);         
+             }
+             
+     printf("%d\n" , c);        
+    return 0;
+}
+
+
+
+6->
+
+#include<stdio.h>
+#include <time.h>
+#include <string.h>
+
+
+
+int main()
+{
+
+    double sum = 0;
+    double sum2 = 0;
+
+  
+    for(int i = 1;i<50000;i++){
+
+        sum = sum+i;
+         for(int j = 1;j<50000;j++){
+
+        sum2 = sum2+j;
+    }
+    }
+
+   
+
+    printf("Addition is = %lf" , sum);
+    printf("\n");
+    printf("Addition is = %lf\n" , sum+sum2);
+ 
+
+    return 0;
+}
+
+
+
+
+7=>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <time.h>
+  #include <omp.h>
+int main() {
+
+    omp_set_num_threads(30);
+    clock_t start_time = clock(); 
+    int m, n, p, i, j, k;
+   printf("Enter the number of rows and columns of the first matrix: ");
+   scanf("%d %d", &m, &n);
+   printf("Enter the number of columns of the second matrix: ");
+   scanf("%d", &p);
+
+   double a[m][n], b[n][p], c[m][p];
+
+   
+   printf("Entering the elements of the first matrix:\n");
+   double val;
+   scanf("%lf",&val);
+   
+   for (i = 0; i < m; i++) {
+       for (j = 0; j < n; j++) {
+            a[i][j] = val;       
+       }
+   }
+     
+   printf("Enter the element of the second matrix:\n");
+   double val2;
+   scanf("%lf", &val2);
+   for (i = 0; i < n; i++) {
+       for (j = 0; j < p; j++) {
+           b[i][j] = val2;
+       }
+   }
+
+   //#pragma omp parallel for
+   for (i = 0; i < m; i++) {
+       for (j = 0; j < p; j++) {
+           c[i][j] = 0;
+           for (k = 0; k < n; k++) {
+               c[i][j] += a[i][k] * b[k][j];
+           }
+       }
+   }
+
+ 
+   printf("The product of the two matrices is:\n");
+   for (i = 0; i < m; i++) {
+       for (j = 0; j < p; j++) {
+           printf("%.1lf ", c[i][j]);
+       }
+       printf("\n");
+   }
+
+   clock_t end_time = clock(); // Record the end time
+
+    double elapsed_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("Elapsed time: %.2f mileseconds\n", elapsed_time);
+
+
+   return 0;
+}
+
+8=>
+
+  #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int main() {
+    clock_t start_time = clock(); 
+    int m, n, p, i, j, k;
+   printf("Enter the number of rows and columns of the first matrix: ");
+   scanf("%d %d", &m, &n);
+   printf("Enter the number of columns of the second matrix: ");
+   scanf("%d", &p);
+
+   double a[m][n], b[n][p], c[m][p];
+
+   printf("Enter the elements of the first matrix:\n");
+   for (i = 0; i < m; i++) {
+       for (j = 0; j < n; j++) {
+           scanf("%lf", &a[i][j]);
+       }
+   }
+
+   printf("Enter the elements of the second matrix:\n");
+   for (i = 0; i < n; i++) {
+       for (j = 0; j < p; j++) {
+           scanf("%lf", &b[i][j]);
+       }
+   }
+
+
+   for (i = 0; i < m; i++) {
+       for (j = 0; j < p; j++) {
+           c[i][j] = 0;
+           for (k = 0; k < n; k++) {
+               c[i][j] += a[i][k] * b[k][j];
+           }
+       }
+   }
+
+ 
+   printf("The product of the two matrices is:\n");
+   for (i = 0; i < m; i++) {
+       for (j = 0; j < p; j++) {
+           printf("%.1lf ", c[i][j]);
+       }
+       printf("\n");
+   }
+
+   clock_t end_time = clock(); // Record the end time
+
+    double elapsed_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("Elapsed time: %.2f seconds\n", elapsed_time);
+
+
+   return 0;
+}
+
+
+9 =>
+
+#include<stdio.h>
+#include<omp.h>
+
+static long num_staps = 4;
+double step;
+int main(){
+
+int i;
+double pi , x ,sum = 0.0;
+step=1.0/(double)num_staps ;
+
+{
+    double x;
+
+    #pragma omp parallel for reduction(+:sum) private(x,i)
+    for (i=0 ; i < num_staps ; ++i){
+        x=(double)(i+0.5)*step;
+        sum = sum + 4.0/(1.0 + x * x);
+    }
+
+}
+
+pi = step * sum;
+printf("The value of PI is %f\n",pi);
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+10->
+
+
+
+
+#include<stdio.h>
+//#include <omp.h>
+
+
+
+int main(void)
+{
+    int cnt = 0;
+    int cnt2 = 0;
+
+         omp_set_num_threads(2); 
+         #pragma omp parallel
+        {
+              //cnt2++;
+              //int id = omp_get_thread_num();
+              //cnt++; 
+              //printf(" %d)  || %d) Hello World from thread (%d)\n",cnt2 ,cnt, id);
+         
+            for(int t  = 0; t<10; t++)
+            {
+                printf("%d\n",t);                /* code */
+            }
+            
+
+        }
+
+        //printf("%d\n" , cnt);
+
+
+    return 0;
+}
+
+//system enviroment => 
+// user envioment =
+
+
+
+11 = >
+
+
+#include<stdio.h>
+#include<omp.h>
+
+int main(int argc, char const *argv[])
+{
+
+    omp_set_num_threads(3);
+    printf("Whith no chunk sized passed\n");
+
+    #pragma omp parallel for schedule(dynamic)
+    for(int i = 0;i<10;i++){
+
+        printf("thread %d process iteration %d\n" , omp_get_thread_num() , i);
+    }
+
+    printf("Whith  chunk sized 2\n");
+    #pragma omp parallel for schedule(dynamic , 4)
+    for(int i = 0;i<10;i++){
+
+        printf("thread %d process iteration %d\n" , omp_get_thread_num() , i);
+    }  
+
+    return 0;
+}
+
+
+12 ->
+
+
+#include<stdio.h>
+#include<omp.h>
+#define N  5
+
+int main(int argc, char const *argv[])
+{
+    int i = 10;
+    int a[N] , b[N] , c[N] , d[N] ;
+    double sum = 1;
+    double sum1 = 1;
+    for ( i= 0; i < N; ++i)
+    {
+        a[i] = i * 2;
+        b[i] = i + 20;
+    }
+    
+    i = 1;
+
+    omp_set_num_threads(2);
+
+    #pragma omp parallel  shared(a,b,c,d)     
+    {
+        #pragma omp sections lastprivate(sum)
+    {
+        #pragma omp section 
+        for (i=0 ; i < N; ++i)
+        {
+            
+            c[i] = a[i] + b[i];
+            sum = sum + c[i];
+            printf("Section 1 working thred : %d | %d + %d = %d\n" , omp_get_thread_num() , a[i] , b[i] , c[i]);
+        }
+        
+        #pragma omp section
+        for (i=0 ; i < N; ++i)
+        {
+            d[i] = a[i] * b[i];
+            sum1  = sum1 + d[i];
+            printf("Section 2 working thred : %d | %d * %d = %d\n" , omp_get_thread_num() , a[i] , b[i] , d[i]);
+        }
+        
+        
+       
+
+    }  
+
+         printf("sun of addition outside = %d\n" , sum);
+         printf("sum of multiplication outside = %d\n" , sum1);
+
+    }
+
+        // printf("sun of addition outside = %d\n" , sum);
+        // printf("sum of multiplication outside = %d\n" , sum1);
+
+
+    return 0;
+}
+
+
+13=>
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<omp.h>
+
+
+int main()
+{
+    int val = 100;
+    int val1 = 99 ;
+    omp_set_num_threads(10);
+   #pragma omp parallel private(val)
+    //#pragma omp parallel default(shared)
+    {
+
+        if(omp_get_thread_num() == 0)
+        {
+        printf("Thread 0 set value of VAR1 %d  \n" , val1);
+        printf("Thread 0 set value of VAR %d  \n" , val);
+        val = 500;
+        val1=990;
+
+        printf("After Thread 0 set value of VAR %d  \n" , val);
+        printf("After Thread 0 set value of VAR1 %d  \n" , val1);
+    
+        }
+        else{
+             printf("Thread %d set value of VAR %d \n" ,omp_get_thread_num() ,  val);
+        }
+
+        #pragma omp barrier // (wait)-> state wait to complete above code 
+         printf("**************************************\n");
+
+         if(omp_get_thread_num() == 1 )
+         {
+            printf("Thread 1 read the value of VAR %d\n",val);
+         }else{
+            printf("\n");
+            printf("Thread %d set value of VAR %d \n" ,omp_get_thread_num() ,  val);
+         }
+    }
+    //update value beacuse shared
+    printf("%d\n" , val);
+    printf("%d\n" , val1);
+
+    return 0;
+}
+
+
+
+14 =>
+
+#include <stdio.h>
+#include <omp.h>
+
+int main()
+{
+
+    int arr[200];
+    double sum = 0;
+    double sum2 = 0;
+    int len = sizeof(arr) / 4;
+
+    for (int i = 0; i < len; i++)
+    {
+        arr[i] = 25;
+    }
+
+    omp_set_num_threads(5);
+
+    #pragma omp parallel for
+       for (int i = 0; i < len; i++)
+         { 
+           sum2 = sum2 + i;
+           printf("ss\n");
+           sum = sum + arr[i];
+      
+         }
+
+
+
+printf("%.2lf\n", sum);
+printf("%.2lf\n", sum2);
+
+    return 0;
+}
+
